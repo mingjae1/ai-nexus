@@ -12,5 +12,5 @@
 - Respect user explicit override for model/CLI unless impossible, then report constraint and next valid route.
 
 ## Context-Size Guardrails
-- Input >200K tokens: route to `gemini-3.1-pro`.
-- Input >272K tokens: never route to GPT-5.4/self-execute paths; force `gemini-3.1-pro`.
+- Input >200K tokens: route to `gemini-3.1-pro-preview`.
+- Input >272K tokens: never route to GPT-5.4/self-execute paths; force `gemini-3.1-pro-preview`.
