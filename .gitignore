@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+build_temp/
+
+# Logs & temp
+*.log
+*.tmp
+*.bak.*
+
+# OS / Editor
+.editorconfig
+.vscode/
+
+# CLI config (local, machine-specific)
+.claude/
+.codex-local/
+.github/
+
+# Scripts & setup (local only)
+scripts/
+*.ps1
+*.bat
+!install.bat
+
+# Tests
+tests/
+test-results/
+playwright-report/
+playwright.config.ts
+
+# AI agent instructions (local overrides)
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+
+# Plan / design docs (working notes)
+plan/
+
+# Generated cache
+models_cache.json
