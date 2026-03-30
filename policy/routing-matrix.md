@@ -28,7 +28,7 @@ Workers in this project: `claude-code`, `codex-cli`, `gemini-cli`.
 |------|--------------|-----|----------------|--------------|
 | `code-gen-static` | gpt-5.3-codex | codex-cli | gemini-3-flash-preview | gemini-cli |
 | `code-gen-agentic` | gpt-5.3-codex | codex-cli | gemini-3-flash-preview | gemini-cli |
-| `code-gen-simple` | gemini-3-flash-preview | gemini-cli | gemini-3.1-flash-lite-preview | gemini-cli |
+| `code-gen-simple` | gemini-3-flash-preview | gemini-cli | gemini-2.5-flash-lite | gemini-cli |
 | `analysis-large` | gemini-3.1-pro-preview | gemini-cli | gemini-2.5-pro | gemini-cli |
 | `analysis-precision` | claude-sonnet-4.6 | claude-code | gpt-5.3-codex | codex-cli |
 | `analysis-light` | gemini-3-flash-preview | gemini-cli | claude-sonnet-4.6 | claude-code |
@@ -36,7 +36,7 @@ Workers in this project: `claude-code`, `codex-cli`, `gemini-cli`.
 | `debug` | claude-sonnet-4.6 | claude-code | gpt-5.3-codex | codex-cli |
 | `refactor` | claude-sonnet-4.6 | claude-code | gpt-5.3-codex | codex-cli |
 | `architecture` | claude-sonnet-4.6 | claude-code | gpt-5.3-codex | codex-cli |
-| `test` | gemini-3.1-flash-lite-preview | gemini-cli | gpt-5.3-codex | codex-cli |
+| `test` | gemini-2.5-flash-lite | gemini-cli | gpt-5.3-codex | codex-cli |
 | `docs` | claude-sonnet-4.6 | claude-code | gemini-3-flash-preview | gemini-cli |
 | `web-search` | gemini-3-flash-preview | gemini-cli | gemini-2.5-flash | gemini-cli |
 | `gitops` | gpt-5.3-codex | codex-cli | gemini-3-flash-preview | gemini-cli |

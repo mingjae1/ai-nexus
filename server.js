@@ -228,16 +228,17 @@ function loadModelCatalog() {
     // fallback to inline
   }
   return [
-    { id: 'claude-opus-4.6', provider: 'claude', quality: 99, cost: 10, minPlan: 3, labels: ['quality', 'balanced'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'claude-sonnet-4.6', provider: 'claude', quality: 93, cost: 6, minPlan: 2, labels: ['quality', 'balanced', 'economy'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gemini-3.1-pro', provider: 'gemini', quality: 92, cost: 4, minPlan: 2, labels: ['quality', 'balanced'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gemini-2.5-pro', provider: 'gemini', quality: 89, cost: 3, minPlan: 1, labels: ['balanced', 'economy'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gpt-5.4', provider: 'openai', quality: 97, cost: 9, minPlan: 3, labels: ['quality'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gpt-5.3-codex', provider: 'openai', quality: 91, cost: 5, minPlan: 2, labels: ['quality', 'balanced'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gpt-5.4-mini', provider: 'openai', quality: 88, cost: 3, minPlan: 1, labels: ['balanced', 'economy'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gemini-3-flash', provider: 'gemini', quality: 82, cost: 1, minPlan: 0, labels: ['balanced', 'economy'], supportsReasoning: false, effortDefault: 'medium' },
-    { id: 'gemini-2.5-flash', provider: 'gemini', quality: 76, cost: 1, minPlan: 0, labels: ['economy'], supportsReasoning: true, effortDefault: 'medium' },
-    { id: 'gemini-2.5-flash-lite', provider: 'gemini', quality: 67, cost: 1, minPlan: 0, labels: ['economy'], supportsReasoning: false, effortDefault: 'medium' }
+    { id: 'claude-opus-4-6', provider: 'claude', quality: 99, cost: 10, minPlan: 3, labels: ['quality', 'balanced'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['D', 'S', 'F', 'A'] },
+    { id: 'claude-sonnet-4-6', provider: 'claude', quality: 93, cost: 6, minPlan: 2, labels: ['quality', 'balanced', 'economy'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['D', 'S', 'F', 'A'] },
+    { id: 'claude-haiku-4-5', provider: 'claude', quality: 75, cost: 1, minPlan: 0, labels: ['economy'], supportsReasoning: false, effortDefault: 'medium', stageAffinities: ['F'] },
+    { id: 'gemini-3.1-pro-preview', provider: 'gemini', quality: 92, cost: 4, minPlan: 2, labels: ['quality', 'balanced'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['R', 'A'] },
+    { id: 'gemini-2.5-pro', provider: 'gemini', quality: 89, cost: 3, minPlan: 1, labels: ['balanced', 'economy'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['R', 'A'] },
+    { id: 'gpt-5.4', provider: 'openai', quality: 97, cost: 9, minPlan: 3, labels: ['quality'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['I', 'T'] },
+    { id: 'gpt-5.3-codex', provider: 'openai', quality: 91, cost: 5, minPlan: 2, labels: ['quality', 'balanced'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['I', 'T'] },
+    { id: 'gpt-5.4-mini', provider: 'openai', quality: 88, cost: 3, minPlan: 1, labels: ['balanced', 'economy'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['I', 'T'] },
+    { id: 'gemini-3-flash-preview', provider: 'gemini', quality: 82, cost: 1, minPlan: 0, labels: ['balanced', 'economy'], supportsReasoning: false, effortDefault: 'medium', stageAffinities: ['R', 'T', 'F'] },
+    { id: 'gemini-2.5-flash', provider: 'gemini', quality: 76, cost: 1, minPlan: 0, labels: ['economy'], supportsReasoning: true, effortDefault: 'medium', stageAffinities: ['R', 'A'] },
+    { id: 'gemini-2.5-flash-lite', provider: 'gemini', quality: 67, cost: 1, minPlan: 0, labels: ['economy'], supportsReasoning: false, effortDefault: 'medium', stageAffinities: ['R', 'T'] }
   ];
 }
 
@@ -260,31 +261,31 @@ const QUALITY_THRESHOLD = {
 
 const PRESET_BASELINE = {
   Quality: {
-    R: 'gemini-3.1-pro',
-    A: 'gemini-3.1-pro',
-    D: 'claude-opus-4.6',
+    R: 'gemini-3.1-pro-preview',
+    A: 'gemini-3.1-pro-preview',
+    D: 'claude-opus-4-6',
     I: 'gpt-5.4',
     T: 'gemini-2.5-pro',
-    S: 'claude-opus-4.6',
-    F: 'claude-opus-4.6'
+    S: 'claude-opus-4-6',
+    F: 'claude-opus-4-6'
   },
   Balanced: {
     R: 'gemini-2.5-pro',
     A: 'gemini-2.5-pro',
-    D: 'claude-sonnet-4.6',
+    D: 'claude-sonnet-4-6',
     I: 'gpt-5.3-codex',
-    T: 'gemini-3-flash',
-    S: 'claude-sonnet-4.6',
-    F: 'claude-sonnet-4.6'
+    T: 'gemini-3-flash-preview',
+    S: 'claude-sonnet-4-6',
+    F: 'claude-sonnet-4-6'
   },
   Economy: {
-    R: 'gemini-3-flash',
-    A: 'gemini-3-flash',
-    D: 'claude-sonnet-4.6',
+    R: 'gemini-3-flash-preview',
+    A: 'gemini-3-flash-preview',
+    D: 'claude-sonnet-4-6',
     I: 'gpt-5.4-mini',
     T: 'gemini-2.5-flash-lite',
-    S: 'gemini-3-flash',
-    F: 'gemini-3-flash'
+    S: 'gemini-3-flash-preview',
+    F: 'gemini-3-flash-preview'
   }
 };
 
@@ -565,18 +566,24 @@ function getCliForModel(modelId, orchestratorId, workerIds) {
   return orchestratorId;
 }
 
-function chooseBestModel(models, mode) {
+function chooseBestModel(models, mode, stage) {
   const threshold = QUALITY_THRESHOLD[mode] || 0;
   const filtered = models.filter((m) => m.quality >= threshold);
   const target = filtered.length ? filtered : models;
 
+  // Prefer models with affinity for this RADIT stage when available
+  const stagePreferred = stage
+    ? target.filter((m) => Array.isArray(m.stageAffinities) && m.stageAffinities.includes(stage))
+    : [];
+  const pool = stagePreferred.length ? stagePreferred : target;
+
   if (mode === 'Quality') {
-    return target.sort((a, b) => b.quality - a.quality)[0] || null;
+    return pool.sort((a, b) => b.quality - a.quality)[0] || null;
   }
   if (mode === 'Balanced') {
-    return target.sort((a, b) => (b.quality - a.quality) - (a.cost - b.cost) * 0.5)[0] || null;
+    return pool.sort((a, b) => (b.quality - a.quality) - (a.cost - b.cost) * 0.5)[0] || null;
   }
-  return target.sort((a, b) => a.cost - b.cost || b.quality - a.quality)[0] || null;
+  return pool.sort((a, b) => a.cost - b.cost || b.quality - a.quality)[0] || null;
 }
 
 function generateRecommendation(payload) {
@@ -628,7 +635,7 @@ function generateRecommendation(payload) {
       continue;
     }
 
-    const chosen = chooseBestModel(selectionPool, mode === 'Custom' ? 'Balanced' : mode);
+    const chosen = chooseBestModel(selectionPool, mode === 'Custom' ? 'Balanced' : mode, stage);
     modelAssignment[stage] = chosen ? chosen.id : (selectionPool[0] ? selectionPool[0].id : preferredId);
   }
 
