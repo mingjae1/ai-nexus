@@ -1,0 +1,90 @@
+{
+  "name": "ai-nexus",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Nexus - Multi-Model Orchestrator CLI",
+  "main": "electron-main.js",
+
+  "scripts": {
+    "start": "node server.js",
+    "setup": "powershell -ExecutionPolicy Bypass -File setup.ps1",
+    "app": "electron .",
+    "orchestrate": "node scripts/orchestrator.js",
+    "electron:dev": "electron .",
+    "electron:serve": "npm run start & electron .",
+    "test": "playwright test",
+    "test:unit": "node tests/orchestrator.test.js && node tests/server-quota.test.js",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "dist": "electron-builder build --win --x64",
+    "dist:portable": "electron-builder build --win portable --x64"
+  },
+  "keywords": [
+    "cli",
+    "orchestrator",
+    "mcp",
+    "claude",
+    "gemini",
+    "codex",
+    "ai-nexus"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "electron": "26.2.0",
+    "electron-builder": "26.8.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "build": {
+    "appId": "com.ai-nexus.orchestrator",
+    "productName": "AI Nexus",
+    "files": [
+      "electron-main.js",
+      "server.js",
+      "wizard.html",
+      "wizard-config.json",
+      "scripts/**"
+    ],
+    "extraResources": [
+      {
+        "from": "setup.ps1",
+        "to": "setup.ps1"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI Nexus"
+    },
+    "portable": {
+      "artifactName": "AI-Nexus-portable.exe"
+    }
+  },
+  "dependencies": {
+    "claude": "0.1.1",
+    "express": "5.2.1"
+  }
+}

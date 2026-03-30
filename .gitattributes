@@ -1,0 +1,8 @@
+# Enforce UTF-8 encoding for all text files
+* text eol=lf
+*.html text eol=lf working-tree-encoding=UTF-8
+*.ps1 text eol=crlf working-tree-encoding=UTF-8
+*.js text eol=lf working-tree-encoding=UTF-8
+*.md text eol=lf working-tree-encoding=UTF-8
+*.json text eol=lf working-tree-encoding=UTF-8
+*.cmd text eol=crlf working-tree-encoding=UTF-8

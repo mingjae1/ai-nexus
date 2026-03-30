@@ -1,0 +1,39 @@
+﻿{
+  "apiKey": {
+    "claude": "",
+    "gemini": "",
+    "openai": ""
+  },
+  "orchestrator": "codex",
+  "workers": [],
+  "mode": "Custom",
+  "promptTemplatesPath": "./prompt-templates",
+  "planType": {
+    "claude": "subscription",
+    "gemini": "subscription",
+    "codex": "subscription"
+  },
+  "subscriptionTier": {
+    "claude": "Pro",
+    "gemini": "Pro",
+    "codex": "Plus"
+  },
+  "modelAssignment": {
+    "R": "claude-sonnet-4.6",
+    "A": "claude-sonnet-4.6",
+    "D": "claude-sonnet-4.6",
+    "I": "gpt-5.3-codex",
+    "T": "gpt-5.3-codex",
+    "S": "gemini-3-flash",
+    "F": "gemini-2.5-flash"
+  },
+  "effortAssignment": {
+    "R": "medium",
+    "A": "medium",
+    "D": "medium",
+    "I": "medium",
+    "T": "medium",
+    "S": "medium",
+    "F": "low"
+  }
+}

@@ -1,0 +1,1353 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MMO Setup Wizard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --line: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --good: #10b981;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --btn: #0ea5e9;
+      --btn2: #2563eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 10% 0%, #1e293b 0%, var(--bg) 45%);
+      color: var(--text);
+      font-family: "Segoe UI", "Apple SD Gothic Neo", sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .wizard {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: color-mix(in srgb, var(--panel) 90%, black);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(14, 165, 233, 0.08);
+    }
+    .header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .progress { color: var(--muted); font-size: 13px; }
+    .body { padding: 20px; }
+    .step { display: none; }
+    .step.active { display: block; }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 0 0 18px 0;
+      color: #f1f5f9;
+      line-height: 1.3;
+    }
+    .card {
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      margin-bottom: 12px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      border-color: rgba(148, 163, 184, 0.22);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .row.between { justify-content: space-between; }
+    .status { font-size: 12px; padding: 4px 8px; border-radius: 20px; border: 1px solid transparent; }
+    .ok { color: #d1fae5; background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); }
+    .warn { color: #fef3c7; background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.45); }
+    .bad { color: #fee2e2; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.45); }
+    .muted {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .bento-grid .card { margin-bottom: 0; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #475569;
+      background: #0b1220;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+    textarea { min-height: 160px; resize: vertical; }
+    button {
+      border: 1px solid transparent;
+      background: linear-gradient(120deg, var(--btn), var(--btn2));
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px) scale(1.01);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+    }
+    button:active:not(:disabled) {
+      transform: translateY(0) scale(0.99);
+      box-shadow: none;
+    }
+    button.secondary {
+      background: transparent;
+      border-color: #64748b;
+      color: #cbd5e1;
+    }
+    button.secondary:hover:not(:disabled) {
+      border-color: #94a3b8;
+      background: rgba(100, 116, 139, 0.15);
+      box-shadow: none;
+      transform: translateY(-1px);
+    }
+    button.secondary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-top: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.7);
+    }
+    .small {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    code { color: #93c5fd; }
+    .output-block { margin-top: 12px; }
+    .output-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .output-label span { margin-left: 6px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .output-pre { white-space: pre-wrap; color: #cbd5e1; background: rgba(11, 18, 32, 0.6); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-size: 13px; min-height: 48px; }
+    .orchestrator-highlight { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.35); margin-bottom: 10px; }
+    .orchestrator-highlight .orch-name { font-size: 16px; font-weight: 700; color: #7dd3fc; }
+    .orchestrator-highlight .worker-tag { font-size: 11px; color: var(--muted); background: rgba(51, 65, 85, 0.7); border: 1px solid #475569; border-radius: 4px; padding: 2px 7px; }
+    button.loading { opacity: 0.65; cursor: not-allowed; position: relative; }
+    .pill {
+      border: 1px solid #334155;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tier-badge {
+      border: 1px solid #334155;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .card > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #334155;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+    .step-dot.active {
+      width: 24px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #0ea5e9, #2563eb);
+      box-shadow: 0 0 8px rgba(14, 165, 233, 0.5);
+    }
+    .step-dot.done {
+      background: #10b981;
+    }
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wizard">
+    <div class="header">
+      <h1>MMO Setup Wizard</h1>
+      <div class="header-meta">
+        <span id="tier-badge" class="tier-badge">Premium</span>
+        <div id="step-indicator" class="step-indicator">
+          <!-- step dots generated by JS -->
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <section id="step-0" class="step active">
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 24px; text-align:center; gap:24px;">
+          <div style="font-size:48px; line-height:1;">🤖</div>
+          <div>
+            <h2 style="font-size:22px; margin:0 0 8px;">MMO Setup Wizard에 오신 것을 환영합니다</h2>
+            <p class="muted" style="margin:0; max-width:420px; line-height:1.6;">Claude · Gemini · Codex CLI를 함께 사용하는 멀티모델 오케스트레이션 환경을 단계별로 설정합니다.<br>총 5단계로 구성되어 있으며, 5분 이내에 완료할 수 있습니다.</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+            <div class="small muted">설정 항목: Node.js 환경 · CLI 등록 · 오케스트레이터 지정 · 모델 설정 · 최종 검증</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="step-1" class="step">
+        <h2>Step 1. Node.js 환경 확인</h2>
+        <div id="node-status" class="card">확인 중...</div>
+      </section>
+
+      <section id="step-2" class="step">
+        <h2>Step 2. CLI 등록</h2>
+        <div class="muted">설치 상태/버전/인증 상태를 확인하고 자동 설치를 시도할 수 있습니다.</div>
+        <div id="cli-list"><div class="muted" style="padding:16px 0;">CLI 상태 확인 중…</div></div>
+      </section>
+
+      <section id="step-3" class="step">
+        <h2>Step 3. 오케스트레이션 CLI 지정</h2>
+        <div class="card">
+          <label>Primary Orchestrator</label>
+          <select id="orchestrator-select"></select>
+          <div id="orch-mode-badge" class="pill" style="margin-top:8px;"></div>
+          <div class="small">선택된 CLI가 메인 작업 진행자이며, 다른 CLI는 MCP 또는 bash subprocess로 연동됩니다.</div>
+        </div>
+        <div id="integration-info" class="card"></div>
+        <div class="card" id="worker-select-card">
+          <label>추가 CLI 연동 (선택)</label>
+          <div id="worker-checkboxes"></div>
+          <div class="small">워커 없이도 단일 CLI로 오케스트레이션 가능합니다.<br>다른 제공자(OpenAI/Google/Anthropic) 모델이 필요할 때만 추가하세요.</div>
+        </div>
+      </section>
+
+      <section id="step-4" class="step">
+        <h2>Step 4. 모델 및 플랜 설정</h2>
+        <div class="card">
+          <div class="row">
+            <div class="pill">Mode</div>
+            <label><input type="radio" name="mode" value="Quality"> Quality</label>
+            <label><input type="radio" name="mode" value="Balanced"> Balanced</label>
+            <label><input type="radio" name="mode" value="Economy"> Economy</label>
+            <label><input type="radio" name="mode" value="Custom"> Custom</label>
+          </div>
+          <div class="small">Quality/Balanced에서는 임계 품질 이하 모델이 비추천으로 표시됩니다.</div>
+        </div>
+        <div id="recommend-box" class="card"></div>
+        <div id="custom-box" class="card" style="display:none;"></div>
+      </section>
+
+      <section id="step-5" class="step">
+        <h2>Step 5. 완료 + 검증</h2>
+        <div id="summary" class="card"></div>
+        <div class="card">
+          <div class="row">
+            <button id="complete-btn" onclick="runCompleteSetup()">설정 완료 및 적용</button>
+            <button class="secondary" onclick="saveConfig()">설정 저장</button>
+          </div>
+          <div style="margin-top:10px;">
+            <div class="small" style="margin-bottom:6px;">개별 재실행</div>
+            <div class="row">
+              <button id="apply-btn" class="secondary" onclick="applyOrchestrator()">오케스트레이터 적용</button>
+              <button class="secondary" onclick="validateRun()">MCP 연결 테스트</button>
+            </div>
+          </div>
+          <div class="output-block">
+            <div class="output-label" id="output-label" style="display:none;"></div>
+            <pre class="output-pre" id="validate-output" style="display:none;"></pre>
+          </div>
+        </div>
+        <div id="how-to-use" class="card" style="display:none;">
+          <div style="font-weight:700; margin-bottom:10px;">사용 방법</div>
+          <div class="small" style="margin-bottom:8px;">
+            설정이 완료되었습니다. 이제 오케스트레이터 CLI에서 자연어로 작업을 지시하세요.
+          </div>
+          <div class="small" style="margin-bottom:6px;">
+            <strong>오케스트레이터</strong>가 명령을 RADIT 단계로 분석하고, 각 단계에 배치된 모델로 워커 CLI에 지시합니다.
+          </div>
+          <div style="margin-top:10px;">
+            <div class="output-label">예시</div>
+            <pre class="output-pre" id="how-to-example" style="min-height:unset;"></pre>
+          </div>
+          <div class="small" style="margin-top:8px; color: var(--muted);">
+            모드에 따라 작업 당 최적 모델이 자동 선택됩니다. 토큰 소모가 과할 것으로 예상되면 fallback chain이 자동 가동됩니다.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="nav">
+      <button id="prev-btn" class="secondary" onclick="prevStep()">이전</button>
+      <div class="small" id="nav-hint">필요한 설정을 확인하세요.</div>
+      <button id="next-btn" onclick="nextStep()">다음</button>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      currentStep: 0,
+      totalSteps: 5,
+      tier: 'premium',
+      autoClose: false,
+      allowedClis: [],
+      node: null,
+      clis: {},
+      envSetup: {},
+      installLogs: {},
+      pendingLogin: {},
+      modelCatalog: [],
+      lowQualityModels: [],
+      config: {
+        apiKey: { claude: '', gemini: '', openai: '' },
+        orchestrator: 'claude',
+        workers: [],
+        mode: 'Quality',
+        planType: {},
+        subscriptionTier: {},
+        cliAssignment: { R: '', A: '', D: '', I: '', T: '', S: '', F: '' },
+        modelAssignment: { R: '', A: '', D: '', I: '', T: '', S: '', F: '' },
+        effortAssignment: { R: 'medium', A: 'high', D: 'high', I: 'medium', T: 'medium', S: 'high', F: 'high' }
+      }
+    };
+
+    const RADIT_STAGES = ['R', 'A', 'D', 'I', 'T', 'S', 'F'];
+    const CLI_PROVIDER_MAP = { claude: 'claude', gemini: 'gemini', codex: 'openai' };
+
+    function byId(id) { return document.getElementById(id); }
+
+    async function apiGet(url) {
+      const res = await fetch(url, { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'request failed');
+      return data;
+    }
+
+    async function apiPost(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload || {})
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'request failed');
+      return data;
+    }
+
+    function renderTierBadge() {
+      const badge = byId('tier-badge');
+      if (!badge) return;
+      const isPortable = state.tier === 'portable';
+      badge.textContent = isPortable ? 'Portable' : 'Premium';
+      badge.style.borderColor = isPortable ? 'rgba(56, 189, 248, 0.55)' : '#334155';
+      badge.style.background = isPortable ? 'rgba(14, 165, 233, 0.2)' : 'rgba(15, 23, 42, 0.8)';
+      badge.style.color = isPortable ? '#dbeafe' : '#cbd5e1';
+    }
+
+    function stepLabel() {
+      const indicator = byId('step-indicator');
+      if (indicator) {
+        indicator.innerHTML = state.currentStep === 0 ? '' : Array.from({ length: state.totalSteps }, (_, i) => {
+          const n = i + 1;
+          const cls = n === state.currentStep ? 'active' : n < state.currentStep ? 'done' : '';
+          return `<div class="step-dot ${cls}" title="Step ${n}"></div>`;
+        }).join('');
+      }
+      byId('prev-btn').disabled = state.currentStep === 0;
+      byId('next-btn').style.display = state.currentStep === state.totalSteps ? 'none' : 'inline-block';
+      byId('next-btn').textContent = state.currentStep === 0 ? '시작하기' : '다음';
+    }
+
+    function goStep(step) {
+      state.currentStep = Math.max(0, Math.min(state.totalSteps, step));
+      document.querySelectorAll('.step').forEach((el) => el.classList.remove('active'));
+      byId(`step-${state.currentStep}`).classList.add('active');
+      if (state.currentStep === 5) renderSummary();
+      stepLabel();
+    }
+
+    async function nextStep() {
+      if (state.currentStep === 2) {
+        const ok = await verifyPendingLogins();
+        if (!ok) return;
+      }
+      goStep(state.currentStep + 1);
+    }
+    function prevStep() { goStep(state.currentStep - 1); }
+
+    function nodeBadge(node) {
+      if (!node || !node.installed) return { icon: '❌', cls: 'bad', text: '미설치' };
+      if (node.ok) return { icon: '✅', cls: 'ok', text: '적합 (>=18)' };
+      return { icon: '⚠️', cls: 'warn', text: '버전 업그레이드 필요' };
+    }
+
+    function cliBadge(ok) {
+      return ok ? '<span class="status ok">설치됨</span>' : '<span class="status bad">미설치</span>';
+    }
+
+    function setCliLog(cliId, text) {
+      state.installLogs[cliId] = String(text || '');
+      const target = document.querySelector(`[data-cli="${cliId}"] .install-log`);
+      if (target) target.textContent = state.installLogs[cliId];
+    }
+
+    async function installNode(method) {
+      try {
+        byId('node-status').textContent = `Node.js 자동 설치 시도 중... (${method})`;
+        await apiPost('/api/install-cli', { cli: 'node', method });
+        await loadNode();
+      } catch (e) {
+        byId('node-status').innerHTML = `<div class="status bad">설치 실패: ${String(e.message || e)}</div>`;
+      }
+    }
+
+    async function installCli(cli, method) {
+      setCliLog(cli, `설치 시도 중 (${method})...`);
+      try {
+        await apiPost('/api/install-cli', { cli, method });
+        const followup = await apiPost('/api/post-install-login', { cli });
+        const lines = [`설치 완료 (${method})`];
+        if (followup.path && followup.path.message) lines.push(followup.path.message);
+        if (followup.login && followup.login.required) {
+          state.pendingLogin[cli] = true;
+          if (followup.login.command) lines.push(`새 터미널 실행: ${followup.login.command}`);
+          lines.push('OAuth 로그인을 완료한 뒤 하단 [다음] 버튼을 눌러 확인하세요.');
+        }
+        setCliLog(cli, lines.join(' | '));
+        await loadCli();
+      } catch (e) {
+        setCliLog(cli, `설치 실패: ${String(e.message || e)}`);
+      }
+    }
+
+    async function openLoginTerminal(cliId) {
+      setCliLog(cliId, '로그인 터미널 실행 중...');
+      try {
+        const result = await apiPost('/api/launch-login', { cli: cliId });
+        state.pendingLogin[cliId] = true;
+        setCliLog(cliId, `새 터미널 실행: ${result.command} | OAuth 로그인을 완료한 뒤 하단 [다음] 버튼을 누르세요.`);
+      } catch (e) {
+        setCliLog(cliId, `로그인 터미널 실행 실패: ${String(e.message || e)}`);
+      }
+    }
+
+    async function loadNode() {
+      state.node = await apiGet('/api/check-node');
+      const badge = nodeBadge(state.node);
+      byId('node-status').innerHTML = `
+        <div class="row between">
+          <div>
+            <div><strong>${badge.icon} Node.js ${state.node.version || ''}</strong></div>
+            <div class="muted">상태: <span class="status ${badge.cls}">${badge.text}</span></div>
+            <div class="small">설치 가이드: <a href="${state.node.installGuide}" target="_blank" rel="noopener noreferrer">${state.node.installGuide}</a></div>
+          </div>
+          <div class="row">
+            <button class="secondary" onclick="installNode('winget')">winget 자동설치</button>
+            <button class="secondary" onclick="installNode('nvm')">nvm 자동설치</button>
+          </div>
+        </div>
+      `;
+      byId('nav-hint').textContent = state.node.ok ? 'Node.js 요구사항 충족.' : 'Node.js 18 이상을 권장합니다.';
+    }
+
+    function renderCliList() {
+      const wrap = byId('cli-list');
+      wrap.innerHTML = '';
+      Object.values(state.clis).forEach((cli) => {
+        const installOptions = (cli.installOptions || []).map((opt) => (
+          `<button class="secondary" onclick="installCli('${cli.id}', '${opt.type}')">${opt.type} 설치</button>`
+        )).join('');
+
+        const integrationText = [
+          cli.integration && cli.integration.mcp ? 'MCP 지원' : 'MCP 미지원',
+          cli.integration && cli.integration.bash ? 'bash subprocess 지원' : 'bash 미지원',
+          cli.integration && cli.integration.note ? cli.integration.note : ''
+        ].filter(Boolean).join(' / ');
+
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.dataset.cli = cli.id;
+        const statusBadge = cli.status === 'ready'
+          ? '<span class="status ok">응답 확인됨</span>'
+          : cli.status === 'authenticated' ? '<span class="status ok">인증됨</span>'
+          : cli.status === 'auth_ok_no_response' ? '<span class="status warn">인증됨(응답 실패)</span>'
+          : cli.status === 'needs_auth' ? '<span class="status warn">인증 필요</span>'
+          : cli.status === 'installed' ? '<span class="status warn">설치됨</span>'
+          : '<span class="status bad">미설치</span>';
+        const pendingBadge = state.pendingLogin[cli.id] ? '<span class="status warn">로그인 진행 중</span>' : '';
+        const installLog = escapeHtml(state.installLogs[cli.id] || '');
+        const tiers = (cli.subscriptionTiers || []);
+        const currentTier = state.config.subscriptionTier[cli.id] || tiers[0] || '';
+        const tierSelect = cli.installed && tiers.length > 1 ? `
+          <div style="margin-top:8px;">
+            <label>구독 티어</label>
+            <select id="step2-tier-${cli.id}" onchange="state.config.subscriptionTier['${cli.id}']=this.value; state.config.planType['${cli.id}']='subscription';">
+              ${tiers.map((t) => `<option value="${t}" ${t === currentTier ? 'selected' : ''}>${t}</option>`).join('')}
+            </select>
+          </div>
+        ` : '';
+
+        const dbg = cli._debug || {};
+        const debugSection = (cli.status !== 'ready' && cli.installed) ? `
+          <details style="margin-top:8px;">
+            <summary class="small" style="cursor:pointer; color:#94a3b8;">진단 정보 보기</summary>
+            <div class="small" style="margin-top:6px; padding:8px; background:rgba(0,0,0,0.3); border-radius:4px; font-family:monospace; white-space:pre-wrap;">env키: ${dbg.envAuth ? '있음' : '없음'} | OAuth파일: ${dbg.oauthFile ? '있음' : '없음'} | ping exitCode: ${dbg.pingExitCode ?? '-'}
+stdout: ${dbg.pingStdout || '(없음)'}
+stderr: ${dbg.pingStderr || '(없음)'}</div>
+          </details>` : '';
+
+        div.innerHTML = `
+          <div class="row between">
+            <div>
+              <div><strong>${cli.label}</strong> ${cliBadge(cli.installed)} ${statusBadge} ${pendingBadge}</div>
+              <div class="small">버전: ${cli.version || '-'}</div>
+              <div class="small">연동: ${integrationText}</div>
+            </div>
+            <div class="row">
+              ${installOptions || '<span class="small">자동 설치 미지원</span>'}
+              ${cli.installed && cli.hasLoginCommand ? `<button class="secondary" onclick="openLoginTerminal('${cli.id}')">로그인 터미널</button>` : ''}
+              ${cli.hasEnvSetup ? `<button class="secondary" onclick="toggleEnvSetup('${cli.id}')">환경변수 설정</button>` : ''}
+            </div>
+          </div>
+          ${tierSelect}
+          <div class="small install-log">${installLog}</div>
+          ${debugSection}
+          ${cli.hasEnvSetup ? `<div id="env-setup-${cli.id}" style="display:none; margin-top:10px;" data-loaded="false"></div>` : ''}
+        `;
+        wrap.appendChild(div);
+      });
+    }
+
+    function getInstalledCliOptions() {
+      const installed = Object.values(state.clis).filter((x) => x.installed);
+      return installed.length ? installed : Object.values(state.clis);
+    }
+
+    function providerForCli(cliId) {
+      return CLI_PROVIDER_MAP[cliId] || '';
+    }
+
+    function cliForProvider(provider) {
+      return Object.keys(CLI_PROVIDER_MAP).find((cliId) => CLI_PROVIDER_MAP[cliId] === provider) || '';
+    }
+
+    function findModel(modelId) {
+      return state.modelCatalog.find((m) => m.id === modelId) || null;
+    }
+
+    function syncCliAssignmentsFromModels() {
+      if (!state.config.cliAssignment || typeof state.config.cliAssignment !== 'object') {
+        state.config.cliAssignment = {};
+      }
+
+      RADIT_STAGES.forEach((stage) => {
+        const assignedCli = String(state.config.cliAssignment[stage] || '').trim();
+        const assignedProvider = providerForCli(assignedCli);
+        const model = findModel(state.config.modelAssignment[stage]);
+        const modelCli = model ? cliForProvider(model.provider) : '';
+
+        if (modelCli && assignedProvider !== model.provider) {
+          state.config.cliAssignment[stage] = modelCli;
+          return;
+        }
+
+        if (!assignedCli) {
+          state.config.cliAssignment[stage] = state.config.orchestrator || '';
+        }
+      });
+    }
+
+    function getWorkerCandidates(orchestratorId) {
+      return Object.values(state.clis).filter((cli) => cli.installed && cli.id !== orchestratorId);
+    }
+
+    function renderOrchestratorModeBadge() {
+      const badge = byId('orch-mode-badge');
+      if (!badge) return;
+      const workerCount = Array.isArray(state.config.workers) ? state.config.workers.length : 0;
+      const single = workerCount === 0;
+      badge.textContent = single ? '단일 CLI 모드' : '멀티 CLI 모드';
+      badge.style.borderColor = single ? 'rgba(59, 130, 246, 0.5)' : 'rgba(16, 185, 129, 0.45)';
+      badge.style.background = single ? 'rgba(37, 99, 235, 0.18)' : 'rgba(16, 185, 129, 0.18)';
+      badge.style.color = single ? '#bfdbfe' : '#d1fae5';
+    }
+
+    function syncWorkerSelection(preferAllInstalled = false) {
+      const candidateIds = getWorkerCandidates(state.config.orchestrator).map((cli) => cli.id);
+      const current = Array.isArray(state.config.workers) ? state.config.workers : [];
+      let next = current.filter((id) => candidateIds.includes(id));
+      if (preferAllInstalled || !Array.isArray(state.config.workers)) {
+        next = [...candidateIds];
+      }
+      state.config.workers = Array.from(new Set(next));
+      renderOrchestratorModeBadge();
+    }
+
+    function renderWorkerCheckboxes() {
+      const wrap = byId('worker-checkboxes');
+      const candidates = getWorkerCandidates(state.config.orchestrator);
+      syncWorkerSelection(false);
+
+      if (!candidates.length) {
+        state.config.workers = [];
+        wrap.innerHTML = '<div class="status ok">추가 연동 가능한 CLI가 없습니다. 현재 오케스트레이터만으로 단일 CLI 모드가 동작합니다.</div>';
+        renderOrchestratorModeBadge();
+        return;
+      }
+
+      wrap.innerHTML = candidates.map((cli) => `
+        <label class="row" style="margin-top:8px; align-items:center;">
+          <input type="checkbox" data-worker-id="${cli.id}" style="width:auto;" ${state.config.workers.includes(cli.id) ? 'checked' : ''}>
+          <span>${cli.label}</span>
+        </label>
+      `).join('');
+
+      wrap.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+        checkbox.onchange = () => {
+          state.config.workers = Array.from(wrap.querySelectorAll('input[type="checkbox"]:checked'))
+            .map((el) => el.dataset.workerId)
+            .filter(Boolean);
+          renderOrchestratorModeBadge();
+          renderIntegrationInfo();
+          refreshRecommendation();
+          if (state.currentStep === 5) renderSummary();
+        };
+      });
+    }
+
+    function renderOrchestrator() {
+      const select = byId('orchestrator-select');
+      const source = getInstalledCliOptions();
+      select.innerHTML = source.map((cli) => `<option value="${cli.id}">${cli.label}</option>`).join('');
+      select.value = source.some((x) => x.id === state.config.orchestrator) ? state.config.orchestrator : source[0]?.id;
+      state.config.orchestrator = select.value || 'claude';
+      select.onchange = () => {
+        state.config.orchestrator = select.value;
+        syncWorkerSelection(false);
+        renderWorkerCheckboxes();
+        renderIntegrationInfo();
+        renderOrchestratorModeBadge();
+        refreshRecommendation();
+        if (state.currentStep === 5) renderSummary();
+      };
+      renderWorkerCheckboxes();
+      renderOrchestratorModeBadge();
+      renderIntegrationInfo();
+    }
+
+    function renderIntegrationInfo() {
+      const orchId = state.config.orchestrator;
+      const cli = state.clis[orchId];
+      if (!cli) {
+        byId('integration-info').textContent = '연동 정보를 찾을 수 없습니다.';
+        return;
+      }
+      const workerIds = Array.isArray(state.config.workers) ? state.config.workers : [];
+      const workerRows = workerIds.map((id) => {
+        const w = state.clis[id];
+        const label = w ? w.label : id;
+        return `<div class="small" style="margin-top:4px;">⚙ <strong>${label}</strong> — MCP worker로 등록됩니다.</div>`;
+      }).join('');
+
+      const pathMap = {
+        claude: '~/.claude/CLAUDE.md + settings.json',
+        gemini: '~/.gemini/GEMINI.md + settings.json',
+        codex: '~/AGENTS.md (홈 디렉터리)'
+      };
+
+      byId('integration-info').innerHTML = `
+        <div class="row between" style="margin-bottom:8px;">
+          <strong>${cli.label} 오케스트레이터 설정</strong>
+          <span class="pill">${cli.integration && cli.integration.mcp ? 'MCP 지원' : 'MCP 미지원'}</span>
+        </div>
+        <div class="small">지시문 경로: <code>${pathMap[orchId] || '-'}</code></div>
+        ${workerRows || '<div class="small" style="margin-top:6px; color: var(--warn);">선택된 워커가 없습니다.</div>'}
+        ${cli.integration && cli.integration.note ? `<div class="small" style="margin-top:6px; color: var(--warn);">⚠ ${cli.integration.note}</div>` : ''}
+      `;
+    }
+
+    function initModeControls() {
+      document.querySelectorAll('input[name="mode"]').forEach((el) => {
+        el.checked = el.value === state.config.mode;
+        el.onchange = () => {
+          state.config.mode = el.value;
+          refreshRecommendation();
+        };
+      });
+    }
+
+    async function refreshRecommendation() {
+      const mode = state.config.mode || 'Balanced';
+      const data = await apiPost('/api/recommend-models', {
+        mode,
+        planType: state.config.planType,
+        subscriptionTier: state.config.subscriptionTier,
+        orchestrator: state.config.orchestrator,
+        workers: state.config.workers
+      });
+      state.lowQualityModels = data.lowQualityModels || [];
+
+      if (mode !== 'Custom') {
+        state.config.modelAssignment = { ...data.modelAssignment };
+        state.config.effortAssignment = { ...data.effortAssignment };
+      }
+      renderRecommendation(data);
+      renderCustomBox();
+    }
+
+    function renderRecommendation(data) {
+      const mode = state.config.mode;
+      const stages = ['R', 'A', 'D', 'I', 'T', 'S', 'F'];
+      const rows = stages.map((s) => {
+        const modelVal = (data.modelAssignment || {})[s] || '';
+        const effortVal = (data.effortAssignment || {})[s] || 'medium';
+        const modelOpts = modelOptionsHtml(modelVal);
+        const effortOpts = ['low', 'medium', 'high'].map((v) =>
+          `<option value="${v}" ${v === effortVal ? 'selected' : ''}>${v}</option>`
+        ).join('');
+
+        return `<div class="row" style="gap:6px; align-items:center; margin-bottom:4px;">
+          <label style="min-width:20px; text-transform:none; font-size:12px; color:var(--text);">${s}</label>
+          <select style="flex:1;" onchange="switchToCustomAndUpdate('${s}','model',this.value)">${modelOpts}</select>
+          <select style="width:80px;" onchange="switchToCustomAndUpdate('${s}','effort',this.value)">${effortOpts}</select>
+        </div>`;
+      }).join('');
+      byId('recommend-box').innerHTML = `
+        <div class="row between" style="margin-bottom:10px;">
+          <strong>${mode} 추천 매핑 (RADIT)</strong>
+          <span class="pill">${(data.availableModels || []).length} models</span>
+        </div>
+        ${rows}
+        <div class="small" style="margin-top:6px; color:var(--muted);">드롭다운 수정 시 Custom 모드로 자동 전환됩니다.</div>
+      `;
+    }
+
+    function switchToCustomAndUpdate(stage, field, value) {
+      if (state.config.mode !== 'Custom') {
+        state.config.mode = 'Custom';
+        document.querySelectorAll('input[name="mode"]').forEach((el) => {
+          el.checked = el.value === 'Custom';
+        });
+        const customRadio = document.querySelector('input[name="mode"][value="Custom"]');
+        if (customRadio && customRadio.parentElement) {
+          customRadio.parentElement.style.transition = 'color 0.3s';
+          customRadio.parentElement.style.color = 'var(--btn)';
+          setTimeout(() => { customRadio.parentElement.style.color = ''; }, 800);
+        }
+        renderCustomBox();
+      }
+
+      if (field === 'model') {
+        state.config.modelAssignment[stage] = value;
+        const effortSel = byId(`effort-${stage}`);
+        if (effortSel) updateEffortSelect(effortSel, value);
+      } else {
+        state.config.effortAssignment[stage] = value;
+      }
+
+      if (field === 'model') {
+        const modelSel = byId(`model-${stage}`);
+        if (modelSel) modelSel.value = value;
+      } else {
+        const effortSel2 = byId(`effort-${stage}`);
+        if (effortSel2) effortSel2.value = value;
+      }
+    }
+
+    function accessTypeAllowed(model, cliId) {
+      const planType = state.config.planType?.[cliId];
+      const at = model.accessType;
+      if (!at || !planType) return true;
+      if (planType === 'api') return at === 'api' || at === 'both';
+      if (planType === 'subscription') return at === 'oauth' || at === 'both';
+      return true;
+    }
+
+    function modelOptionsHtml(selected) {
+      const orchId = state.config.orchestrator;
+      return state.modelCatalog.filter((m) => accessTypeAllowed(m, orchId)).map((m) => {
+        const warn = (state.config.mode === 'Quality' || state.config.mode === 'Balanced') && state.lowQualityModels.includes(m.id);
+        const providerCli = Object.entries(CLI_PROVIDER_MAP).find(([, p]) => p === m.provider)?.[0];
+        const needsWorker = providerCli &&
+          providerCli !== state.config.orchestrator &&
+          !(state.config.workers || []).includes(providerCli);
+        const suffix = `${warn ? ' (비추천)' : ''}${needsWorker ? ' ⚠ 워커 필요' : ''}`;
+        return `<option value="${m.id}" ${m.id === selected ? 'selected' : ''}>${m.id}${suffix}</option>`;
+      }).join('');
+    }
+
+    function modelOptionsHtmlForCli(cliId, selectedModel) {
+      const provider = providerForCli(cliId);
+      const catalog = provider ? state.modelCatalog.filter((m) => m.provider === provider) : state.modelCatalog;
+      return catalog.filter((m) => accessTypeAllowed(m, cliId)).map((m) => {
+        const warn = (state.config.mode === 'Quality' || state.config.mode === 'Balanced') && state.lowQualityModels.includes(m.id);
+        const providerCli = Object.entries(CLI_PROVIDER_MAP).find(([, p]) => p === m.provider)?.[0];
+        const needsWorker = providerCli &&
+          providerCli !== state.config.orchestrator &&
+          !(state.config.workers || []).includes(providerCli);
+        const suffix = `${warn ? ' (비추천)' : ''}${needsWorker ? ' ⚠ 워커 필요' : ''}`;
+        return `<option value="${m.id}" ${m.id === selectedModel ? 'selected' : ''}>${m.id}${suffix}</option>`;
+      }).join('');
+    }
+
+    function updateEffortSelect(effortEl, modelId) {
+      if (!effortEl) return;
+      const model = findModel(modelId);
+      if (!model || model.supportsReasoning === false) {
+        effortEl.innerHTML = '<option value="medium">medium</option>';
+        effortEl.value = 'medium';
+        effortEl.disabled = true;
+        effortEl.title = '이 모델은 reasoning effort를 지원하지 않습니다';
+        return;
+      }
+      const levels = (Array.isArray(model.effortLevels) && model.effortLevels.length)
+        ? model.effortLevels
+        : ['low', 'medium', 'high'];
+      const currentVal = effortEl.value || model.effortDefault || 'medium';
+      effortEl.innerHTML = levels.map((v) => `<option value="${v}" ${v === currentVal ? 'selected' : ''}>${v}</option>`).join('');
+      if (!levels.includes(effortEl.value)) effortEl.value = model.effortDefault || levels[0];
+      effortEl.disabled = false;
+      effortEl.removeAttribute('title');
+    }
+
+    function renderCustomBox() {
+      const box = byId('custom-box');
+      if (state.config.mode !== 'Custom') {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+      const effortOptionsHtml = (selected, modelId) => {
+        const m = findModel(modelId);
+        const levels = (m && Array.isArray(m.effortLevels) && m.effortLevels.length) ? m.effortLevels : ['low', 'medium', 'high'];
+        return levels.map((v) => `<option value="${v}" ${v === selected ? 'selected' : ''}>${v}</option>`).join('');
+      };
+
+      syncCliAssignmentsFromModels();
+
+      box.innerHTML = '<strong>Custom CLI/모델/Reasoning Effort 지정</strong>' + RADIT_STAGES.map((s) => {
+        const assignedCli = state.config.cliAssignment[s] || '';
+        const cliOptions = getInstalledCliOptions();
+        const selectedModel = state.config.modelAssignment[s];
+        const modelOptions = modelOptionsHtmlForCli(assignedCli, selectedModel);
+        const hasCliAssignment = Boolean(assignedCli);
+        return (
+        `<div style="margin-top:8px;" class="row">
+          <label style="min-width:20px;">${s}</label>
+          <select id="cli-${s}">
+            ${!hasCliAssignment ? '<option value="">-- CLI 선택 --</option>' : ''}
+            ${cliOptions.map((cli) => `<option value="${cli.id}" ${cli.id === assignedCli ? 'selected' : ''}>${cli.label}</option>`).join('')}
+          </select>
+          <select id="model-${s}">${modelOptions}</select>
+          <select id="effort-${s}">${effortOptionsHtml(state.config.effortAssignment[s] || 'medium', state.config.modelAssignment[s])}</select>
+        </div>`
+        );
+      }).join('');
+
+      RADIT_STAGES.forEach((s) => {
+        const cliSel = byId(`cli-${s}`);
+        const modelSel = byId(`model-${s}`);
+        const effortSel = byId(`effort-${s}`);
+        updateEffortSelect(effortSel, modelSel.value);
+        state.config.modelAssignment[s] = modelSel.value || '';
+        state.config.effortAssignment[s] = effortSel.value || 'medium';
+
+        cliSel.onchange = () => {
+          state.config.cliAssignment[s] = cliSel.value;
+          modelSel.innerHTML = modelOptionsHtmlForCli(cliSel.value, '');
+          state.config.modelAssignment[s] = modelSel.options[0]?.value || '';
+          modelSel.value = state.config.modelAssignment[s];
+          updateEffortSelect(effortSel, modelSel.value);
+          state.config.effortAssignment[s] = effortSel.value || 'medium';
+        };
+        modelSel.onchange = () => {
+          state.config.modelAssignment[s] = modelSel.value;
+          updateEffortSelect(effortSel, modelSel.value);
+          state.config.effortAssignment[s] = effortSel.value || 'medium';
+        };
+        effortSel.onchange = () => { state.config.effortAssignment[s] = effortSel.value; };
+      });
+    }
+
+    function renderSummary() {
+      const orchId = state.config.orchestrator;
+      const orchCli = state.clis[orchId];
+      const orchLabel = orchCli ? orchCli.label : orchId;
+      const workerIds = Array.isArray(state.config.workers) ? state.config.workers : [];
+      const workerLabels = workerIds.map((id) => {
+        const c = state.clis[id];
+        return c ? c.label : id;
+      });
+      const workerTags = workerLabels.length
+        ? workerLabels.map((l) => `<span class="worker-tag">⚙ ${l}</span>`).join(' ')
+        : '<span class="small" style="color: var(--warn);">선택된 워커가 없습니다.</span>';
+
+      const mapRows = Object.entries(state.config.modelAssignment).map(([k, v]) => `<div><strong>${k}</strong>: <code>${v}</code></div>`).join('');
+      const effortRows = Object.entries(state.config.effortAssignment || {}).map(([k, v]) => `<div><strong>${k}</strong>: <code>${v}</code></div>`).join('');
+      const planRows = Object.keys(state.config.planType).map((cli) => {
+        const c = state.clis[cli];
+        return `<div>${c ? c.label : cli}: <code>${state.config.planType[cli]}</code>${state.config.subscriptionTier[cli] ? ` / <code>${state.config.subscriptionTier[cli]}</code>` : ''}</div>`;
+      }).join('');
+
+      byId('summary').innerHTML = `
+        <div class="orchestrator-highlight">
+          <div>
+            <div class="small" style="margin-bottom:2px;">오케스트레이터</div>
+            <div class="orch-name">${orchLabel}</div>
+          </div>
+          <div style="flex:1;">
+            <div class="small" style="margin-bottom:4px;">워커 (MCP)</div>
+            <div class="row">${workerTags}</div>
+          </div>
+          <div class="pill">${state.config.mode}</div>
+        </div>
+        ${planRows ? `<div style="margin-bottom:8px;"><div class="small" style="margin-bottom:4px; font-weight:600;">플랜</div>${planRows}</div>` : ''}
+        <div class="grid-3" style="margin-bottom:8px;"><div><div class="small" style="font-weight:600; margin-bottom:4px;">모델 배정 (RADIT)</div>${mapRows}</div><div><div class="small" style="font-weight:600; margin-bottom:4px;">Reasoning Effort</div>${effortRows}</div></div>
+      `;
+    }
+
+    function clearOutput() {
+      const labelEl = byId('output-label');
+      const outEl = byId('validate-output');
+      labelEl.innerHTML = '';
+      labelEl.style.display = 'none';
+      outEl.textContent = '';
+      outEl.dataset.logMode = 'false';
+      outEl.style.display = 'none';
+    }
+
+    function showOutput(label, text, append = false) {
+      const labelEl = byId('output-label');
+      const outEl = byId('validate-output');
+      labelEl.innerHTML = append ? '진행 로그' : label;
+      labelEl.style.display = 'block';
+      if (append) {
+        const prefix = outEl.textContent ? `${outEl.textContent}\n` : '';
+        outEl.textContent = `${prefix}[${label}] ${String(text || '')}`;
+        outEl.dataset.logMode = 'true';
+      } else {
+        outEl.textContent = text;
+        outEl.dataset.logMode = 'false';
+      }
+      outEl.style.display = 'block';
+    }
+
+    function formatApplyResult(result) {
+      const workerLines = (result.workerPrompts || [])
+        .map((w) => `  ${w.cli}: ${w.ok ? 'OK' : `FAIL - ${w.error}`}`)
+        .join('\n');
+      const mcpMerged = (result.mcpWorkers?.merged || []).join(', ') || '(없음)';
+      const errors = (result.errors || []).join('\n  ');
+      return [
+        `오케스트레이터: ${result.orchestrator}`,
+        `지시문 작성: ${result.instructions ? 'OK' : 'SKIP'}`,
+        `MCP 워커 등록: ${mcpMerged}`,
+        workerLines ? `워커 프롬프트:\n${workerLines}` : '',
+        errors ? `오류:\n  ${errors}` : ''
+      ].filter(Boolean).join('\n');
+    }
+
+    function formatTestResult(result) {
+      const ping = result.results?.orchestratorPing || {};
+      const workerPings = result.results?.workerPings || {};
+      const workerPingLines = Object.entries(workerPings)
+        .map(([workerId, info]) => `${workerId}: ${info?.ok ? '✓' : '✗'}${info?.output ? ` (${info.output})` : ''}`)
+        .join('\n  ');
+      const errors = (result.errors || []).join('\n  ');
+      return [
+        `오케스트레이터: ${result.orchestrator || '-'}`,
+        `워커: ${(result.workers || []).join(', ') || '(없음)'}`,
+        `주입 성공: ${(result.results?.workersInjected || []).join(', ') || '(없음)'}`,
+        `응답 확인: ${ping.ok ? 'OK' : 'FAIL'}`,
+        ping.output ? `출력:\n${ping.output}` : '',
+        workerPingLines ? `워커 직접 핑:\n  ${workerPingLines}` : '',
+        errors ? `오류:\n  ${errors}` : ''
+      ].filter(Boolean).join('\n');
+    }
+
+    async function applyOrchestrator(options = {}) {
+      const { skipOutput = false } = options;
+      const btn = byId('apply-btn');
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.textContent = '적용 중...';
+      if (!skipOutput) showOutput('오케스트레이터 적용', '처리 중...');
+      try {
+        const result = await apiPost('/api/apply-orchestrator', {
+          orchestrator: state.config.orchestrator,
+          workers: state.config.workers
+        });
+        if (!skipOutput) {
+          const statusIcon = result.status === 'success' ? '✓' : '⚠';
+          showOutput(
+            `오케스트레이터 적용 <span style="color:${result.status === 'success' ? 'var(--good)' : 'var(--warn)'};">${statusIcon} ${result.status}</span>`,
+            formatApplyResult(result)
+          );
+        }
+        return result;
+      } catch (e) {
+        if (!skipOutput) {
+          showOutput('오케스트레이터 적용 <span style="color:var(--bad);">✗ 실패</span>', `오류: ${String(e.message || e)}`);
+        }
+        throw e;
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.textContent = '오케스트레이터 적용';
+      }
+    }
+
+    async function saveConfig(options = {}) {
+      const { skipOutput = false, suppressAutoClose = false } = options;
+      try {
+        const payload = {
+          apiKey: state.config.apiKey,
+          orchestrator: state.config.orchestrator,
+          workers: state.config.workers,
+          mode: state.config.mode,
+          planType: state.config.planType,
+          subscriptionTier: state.config.subscriptionTier,
+          cliAssignment: state.config.cliAssignment,
+          modelAssignment: state.config.modelAssignment,
+          effortAssignment: state.config.effortAssignment
+        };
+        const result = await apiPost('/api/config', payload);
+        if (state.autoClose === true && !suppressAutoClose) {
+          if (!skipOutput) showOutput('설정 저장 <span style="color:var(--good);">✓</span>', '저장 완료 (Portable 모드: 창을 닫습니다)');
+          setTimeout(() => { window.close(); }, 250);
+        } else {
+          if (!skipOutput) showOutput('설정 저장 <span style="color:var(--good);">✓</span>', '모델 배정 및 API 키 저장 완료.');
+        }
+        return result;
+      } catch (e) {
+        if (!skipOutput) showOutput('설정 저장 <span style="color:var(--bad);">✗</span>', `저장 실패: ${String(e.message || e)}`);
+        throw e;
+      }
+    }
+
+    async function validateRun(options = {}) {
+      const { skipOutput = false } = options;
+      if (!skipOutput) showOutput('MCP 연결 테스트', '테스트 중...');
+      try {
+        const result = await apiPost('/api/test-mcp', {
+          orchestrator: state.config.orchestrator,
+          workers: state.config.workers
+        });
+        if (!skipOutput) {
+          showOutput(
+            `MCP 연결 테스트 <span style="color:${result.status === 'success' ? 'var(--good)' : 'var(--warn)'};">${result.status === 'success' ? '✓' : '⚠'}</span>`,
+            formatTestResult(result)
+          );
+        }
+        return result;
+      } catch (e) {
+        if (!skipOutput) showOutput('MCP 연결 테스트 <span style="color:var(--bad);">✗</span>', `검증 실패: ${String(e.message || e)}`);
+        throw e;
+      }
+    }
+
+    async function runCompleteSetup() {
+      const btn = byId('complete-btn');
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.textContent = '진행 중...';
+      clearOutput();
+      const howToUseCard = byId('how-to-use');
+      if (howToUseCard) howToUseCard.style.display = 'none';
+
+      let hadError = false;
+
+      try {
+        showOutput('1/3 설정 저장', '저장 중...', true);
+        await saveConfig({ skipOutput: true, suppressAutoClose: true });
+        showOutput('1/3 설정 저장', '저장 완료', true);
+
+        showOutput('2/3 오케스트레이터 적용', '적용 중...', true);
+        const applyResult = await applyOrchestrator({ skipOutput: true });
+        showOutput('2/3 오케스트레이터 적용', formatApplyResult(applyResult), true);
+        if (applyResult.status !== 'success') hadError = true;
+
+        showOutput('3/3 MCP 연결 테스트', '테스트 중...', true);
+        const testResult = await validateRun({ skipOutput: true });
+        showOutput('3/3 MCP 연결 테스트', formatTestResult(testResult), true);
+        if (testResult.status !== 'success') hadError = true;
+
+        if (!hadError) {
+          const card = byId('how-to-use');
+          if (card) {
+            card.style.display = 'block';
+            const exampleEl = byId('how-to-example');
+            const orchLabel = state.clis[state.config.orchestrator]?.label || state.config.orchestrator;
+            if (exampleEl) exampleEl.textContent = `[${orchLabel}에서]\n> "이 프로젝트의 인증 버그를 분석하고 수정해줘"\n→ R: 코드 분석 → A: 원인 파악 → D: 수정 설계 → I: 구현 → T: 테스트`;
+          }
+        }
+      } catch (e) {
+        hadError = true;
+        showOutput('오류', String(e.message || e), true);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.textContent = hadError ? '일부 오류 발생' : '완료';
+      }
+    }
+
+    async function loadCli() {
+      const wrap = byId('cli-list');
+      if (wrap && !Object.keys(state.clis).length) {
+        wrap.innerHTML = '<div class="muted" style="padding:16px 0;">CLI 상태 확인 중… (응답에 최대 20초 소요될 수 있습니다)</div>';
+      }
+      const data = await apiGet('/api/check-cli');
+      state.clis = data.clis || {};
+      Object.keys(state.pendingLogin).forEach((cliId) => {
+        const cli = state.clis[cliId];
+        if (!cli) return;
+        if (['ready', 'authenticated', 'auth_ok_no_response'].includes(cli.status)) {
+          delete state.pendingLogin[cliId];
+        }
+      });
+      renderCliList();
+      renderOrchestrator();
+    }
+
+    async function verifyPendingLogins() {
+      const pending = Object.keys(state.pendingLogin).filter((cliId) => state.pendingLogin[cliId]);
+      if (!pending.length) return true;
+
+      byId('nav-hint').textContent = '로그인 상태 확인 중...';
+      const failed = [];
+      for (const cliId of pending) {
+        try {
+          const result = await apiPost('/api/confirm-cli-login', { cli: cliId });
+          if (result.authenticated) {
+            delete state.pendingLogin[cliId];
+            setCliLog(cliId, '로그인 확인 완료');
+          } else {
+            failed.push(cliId);
+            setCliLog(cliId, '아직 로그인 확인이 되지 않았습니다. OAuth를 완료한 뒤 [다음]을 다시 눌러주세요.');
+          }
+        } catch (e) {
+          failed.push(cliId);
+          setCliLog(cliId, `로그인 확인 실패: ${String(e.message || e)}`);
+        }
+      }
+
+      await loadCli();
+      if (failed.length > 0) {
+        const labels = failed.map((cliId) => (state.clis[cliId] ? state.clis[cliId].label : cliId)).join(', ');
+        byId('nav-hint').textContent = `로그인 미완료: ${labels}`;
+        return false;
+      }
+      byId('nav-hint').textContent = '로그인 확인 완료. 다음 단계로 이동합니다.';
+      return true;
+    }
+
+    async function toggleEnvSetup(cliId) {
+      const box = byId(`env-setup-${cliId}`);
+      if (!box) return;
+      if (box.dataset.loaded !== 'true') {
+        box.textContent = '불러오는 중...';
+        box.style.display = 'block';
+        try {
+          const data = await apiGet(`/api/env-setup?cli=${encodeURIComponent(cliId)}`);
+          state.envSetup[cliId] = data;
+          renderEnvSetup(cliId, data);
+          box.dataset.loaded = 'true';
+        } catch (e) {
+          box.textContent = `오류: ${String(e.message || e)}`;
+        }
+        return;
+      }
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function renderEnvSetup(cliId, data) {
+      const box = byId(`env-setup-${cliId}`);
+      const platform = data.platform === 'windows' ? 'PowerShell' : data.platform === 'macos' ? 'macOS Terminal' : 'Linux Shell';
+      box.innerHTML = `
+        <div class="small" style="margin-bottom:8px; color:var(--muted);">${data.intro} <span class="pill">${platform}</span></div>
+        ${(data.methods || []).map((method) => {
+          const presetVal = method.configKey && state.config.apiKey ? (state.config.apiKey[method.configKey] || '') : '';
+          const envStatus = (method.envVars || []).map((x) =>
+            `<span class="status ${x.present ? 'ok' : 'warn'}">${x.name}: ${x.present ? '감지됨' : '미설정'}</span>`
+          ).join(' ');
+          return `
+            <div style="border:1px solid #334155; border-radius:8px; padding:10px; margin-bottom:8px;">
+              <div style="font-weight:600; margin-bottom:4px;">${method.label}</div>
+              <div class="small">${method.description}</div>
+              <div style="margin:6px 0;">${envStatus}</div>
+              ${method.needsValue ? `
+                <input id="env-input-${cliId}-${method.id}" type="password"
+                  placeholder="${method.placeholder}"
+                  value="${presetVal}"
+                  style="margin-bottom:8px;">
+              ` : ''}
+              <div class="row" style="flex-wrap:wrap;">
+                <button class="secondary" onclick="previewEnvSetup('${cliId}','${method.id}')">명령 생성</button>
+                ${method.allowExecute ? `<button onclick="executeEnvSetup('${cliId}','${method.id}')">바로 실행</button>` : ''}
+              </div>
+              <div id="env-output-${cliId}-${method.id}" style="margin-top:8px;"></div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    async function previewEnvSetup(cliId, methodId) {
+      const input = byId(`env-input-${cliId}-${methodId}`);
+      const value = input ? input.value : '';
+      const outEl = byId(`env-output-${cliId}-${methodId}`);
+      try {
+        const result = await apiPost('/api/env-setup/preview', { cli: cliId, methodId, value });
+        const cmds = result.commands || [];
+        outEl.innerHTML = cmds.map((c) => `
+          <div style="margin-top:6px;">
+            <div class="small" style="margin-bottom:2px;">${c.label}</div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <code style="flex:1; background:#0b1220; border:1px solid #334155; border-radius:6px; padding:8px; font-size:12px; word-break:break-all;">${escapeHtml(c.command)}</code>
+              <button class="secondary" style="white-space:nowrap;" onclick="copyText(${JSON.stringify(c.command)})">복사</button>
+            </div>
+          </div>
+        `).join('');
+        outEl.innerHTML += '<div class="small" style="margin-top:6px; color:var(--warn);">⚠ 새 터미널을 열어야 환경변수가 반영됩니다.</div>';
+      } catch (e) {
+        outEl.textContent = `오류: ${String(e.message || e)}`;
+      }
+    }
+
+    async function executeEnvSetup(cliId, methodId) {
+      const outEl = byId(`env-output-${cliId}-${methodId}`);
+      outEl.textContent = '실행 중...';
+      try {
+        const result = await apiPost('/api/env-setup/execute', { cli: cliId, methodId });
+        outEl.innerHTML = `<pre style="white-space:pre-wrap; font-size:12px; color:#d1fae5;">${escapeHtml(result.output || '완료')}</pre>`;
+        await loadCli();
+      } catch (e) {
+        outEl.textContent = `오류: ${String(e.message || e)}`;
+      }
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text || '');
+      } catch (e) {
+        prompt('아래 명령을 복사하세요:', text);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function initialize() {
+      try {
+        const [configData, tierData] = await Promise.all([apiGet('/api/config'), apiGet('/api/tier')]);
+        state.modelCatalog = configData.modelCatalog || [];
+        state.config = configData.config || state.config;
+        if (!Array.isArray(state.config.workers)) {
+          state.config.workers = [];
+        }
+        if (!state.config.cliAssignment || typeof state.config.cliAssignment !== 'object') {
+          state.config.cliAssignment = {};
+        }
+        RADIT_STAGES.forEach((stage) => {
+          if (!state.config.cliAssignment[stage]) {
+            const model = findModel(state.config.modelAssignment?.[stage]);
+            state.config.cliAssignment[stage] = model ? cliForProvider(model.provider) : (state.config.orchestrator || '');
+          }
+        });
+        state.tier = String((tierData && tierData.tier) || 'premium');
+        state.autoClose = Boolean(tierData && tierData.autoCloseAfterSetup);
+        state.allowedClis = Array.isArray(tierData && tierData.allowedClis) ? tierData.allowedClis : [];
+        renderTierBadge();
+
+        goStep(0);
+        await loadNode();
+        await loadCli();
+        syncWorkerSelection(false);
+        renderWorkerCheckboxes();
+        renderIntegrationInfo();
+
+        if (!state.config.planType || Object.keys(state.config.planType).length === 0) {
+          state.config.planType = {};
+          Object.keys(state.clis).forEach((k) => { state.config.planType[k] = 'api'; });
+        }
+        if (!state.config.subscriptionTier) {
+          state.config.subscriptionTier = {};
+        }
+
+        initModeControls();
+        await refreshRecommendation();
+        stepLabel();
+      } catch (e) {
+        byId('nav-hint').textContent = `초기화 실패: ${String(e.message || e)}`;
+      }
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
